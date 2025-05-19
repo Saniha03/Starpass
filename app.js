@@ -22,7 +22,7 @@ document.getElementById('dark-mode-toggle').addEventListener('click', toggleDark
 
 // Display error messages non-intrusively
 function showError(message) {
-    const errorDiv = document.getElementById('error-message');
+    const errorDiv = document.getElementById('error');
     errorDiv.textContent = message;
     errorDiv.classList.remove('hidden');
     setTimeout(() => errorDiv.classList.add('hidden'), 3000);
@@ -35,7 +35,7 @@ function validateInput(value, minValue) {
 
 function generatePassword() {
     // Clear previous error
-    document.getElementById('error-message').classList.add('hidden');
+    document.getElementById('error').classList.add('hidden');
 
     // Get input values
     const lowercaseCount = parseInt(document.getElementById('lowercase').value);
@@ -73,6 +73,7 @@ function generatePassword() {
     if (excludeAmbiguous) {
         lowercase = lowercase.replace(/[l]/g, '');
         uppercase = uppercase.replace(/[IO]/g, '');
+        numbers = numbers.replace(/[01]/g, '');
         special = special.replace(/[(){}\[\]]/g, '');
     }
 
@@ -85,7 +86,17 @@ function generatePassword() {
 
     // Fill remaining length with random characters
     if (password.length < passwordLength) {
-        const remainingChars = lowercase + uppercase + numbers + special;
+        let remainingChars = '';
+        if (lowercaseCount > 0) remainingChars += lowercase;
+        if (uppercaseCount > 0) remainingChars += uppercase;
+        if (numbersCount > 0) remainingChars += numbers;
+        if (specialCount > 0) remainingChars += special;
+        
+        // If we've excluded all possible characters, fall back to non-ambiguous ones
+        if (remainingChars.length === 0) {
+            remainingChars = lowercase + uppercase + numbers + special;
+        }
+        
         password += getRandomChars(remainingChars, passwordLength - password.length);
     }
 
@@ -103,6 +114,8 @@ function generatePassword() {
 
 function getRandomChars(charSet, count) {
     if (!charSet || count <= 0) return '';
+    if (charSet.length === 0) return ''; // Prevent empty charset
+    
     const chars = [];
     for (let i = 0; i < count; i++) {
         chars.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
@@ -170,10 +183,17 @@ function estimateCrackTime(password, lowercase, uppercase, numbers, special) {
     if (/[0-9]/.test(password)) charPoolSize += numbers.length;
     if (/[!@#$%^&*()\-_=+[\]{}|;:,.<>?]/.test(password)) charPoolSize += special.length;
 
+    // Prevent division by zero
+    if (charPoolSize === 0) charPoolSize = 1;
+
     // Rough estimate: (charPoolSize^length) / (100 trillion guesses per second)
     const complexity = Math.pow(charPoolSize, password.length);
     const crackTimeSeconds = complexity / 100_000_000_000_000;
     const crackTimeYears = crackTimeSeconds / (60 * 60 * 24 * 365);
 
-    document.getElementById('crack-time').innerText = `Approx. crack time: ${crackTimeYears.toFixed(2)} years`;
+    if (isFinite(crackTimeYears)) {
+        document.getElementById('crack-time').innerText = `Approx. crack time: ${crackTimeYears.toFixed(2)} years`;
+    } else {
+        document.getElementById('crack-time').innerText = 'Approx. crack time: effectively infinite';
+    }
 }
