@@ -3,60 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strong Password Generator</title>
+    <title>Starpass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-        <h1 class="text-2xl font-bold text-center mb-4">Strong Password Generator</h1>
+        <h1 class="text-2xl font-bold text-center mb-4">Security Generator</h1>
         
-        <div class="space-y-4">
-            <div>
-                <label for="length" class="block text-sm font-medium text-gray-700">Password Length: <span id="length-value">16</span></label>
-                <input type="range" id="length" min="1" max="50" value="16" class="w-full p-2" aria-describedby="length-help">
-                <p id="length-help" class="text-xs text-gray-500">Total length of the generated password.</p>
-            </div>
-            <div>
-                <label for="lowercase" class="block text-sm font-medium text-gray-700">Lowercase Letters</label>
-                <input type="number" id="lowercase" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="lowercase-help">
-                <p id="lowercase-help" class="text-xs text-gray-500">Number of lowercase letters in the password.</p>
-            </div>
-            <div>
-                <label for="uppercase" class="block text-sm font-medium text-gray-700">Uppercase Letters</label>
-                <input type="number" id="uppercase" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="uppercase-help">
-                <p id="uppercase-help" class="text-xs text-gray-500">Number of uppercase letters in the password.</p>
-            </div>
-            <div>
-                <label for="numbers" class="block text-sm font-medium text-gray-700">Numbers</label>
-                <input type="number" id="numbers" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="numbers-help">
-                <p id="numbers-help" class="text-xs text-gray-500">Number of digits in the password.</p>
-            </div>
-            <div>
-                <label for="special" class="block text-sm font-medium text-gray-700">Special Characters</label>
-                <input type="number" id="special" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="special-help">
-                <p id="special-help" class="text-xs text-gray-500">Number of special characters in the password.</p>
-            </div>
-            <div class="flex items-center">
-                <input type="checkbox" id="exclude-ambiguous" class="mr-2">
-                <label for="exclude-ambiguous" class="text-sm text-gray-700">Exclude ambiguous characters (e.g., l, I, O, (), [])</label>
-            </div>
+        <!-- Tabs -->
+        <div class="flex border-b mb-4">
+            <button id="tab-password" class="tab-button active px-4 py-2 font-medium" onclick="switchTab('password')">Password</button>
+            <button id="tab-passphrase" class="tab-button px-4 py-2 font-medium" onclick="switchTab('passphrase')">Passphrase</button>
+            <button id="tab-username" class="tab-button px-4 py-2 font-medium" onclick="switchTab('username')">Username</button>
+        </div>
+        
+        <!-- Password Tab -->
+        <div id="password-tab" class="tab-content">
+            <div class="space-y-4">
+                <div>
+                    <label for="length" class="block text-sm font-medium text-gray-700">Password Length: <span id="length-value">16</span></label>
+                    <input type="range" id="length" min="1" max="50" value="16" class="w-full p-2" aria-describedby="length-help">
+                    <p id="length-help" class="text-xs text-gray-500">Total length of the generated password.</p>
+                </div>
+                <div>
+                    <label for="lowercase" class="block text-sm font-medium text-gray-700">Lowercase Letters</label>
+                    <input type="number" id="lowercase" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="lowercase-help">
+                    <p id="lowercase-help" class="text-xs text-gray-500">Number of lowercase letters in the password.</p>
+                </div>
+                <div>
+                    <label for="uppercase" class="block text-sm font-medium text-gray-700">Uppercase Letters</label>
+                    <input type="number" id="uppercase" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="uppercase-help">
+                    <p id="uppercase-help" class="text-xs text-gray-500">Number of uppercase letters in the password.</p>
+                </div>
+                <div>
+                    <label for="numbers" class="block text-sm font-medium text-gray-700">Numbers</label>
+                    <input type="number" id="numbers" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="numbers-help">
+                    <p id="numbers-help" class="text-xs text-gray-500">Number of digits in the password.</p>
+                </div>
+                <div>
+                    <label for="special" class="block text-sm font-medium text-gray-700">Special Characters</label>
+                    <input type="number" id="special" value="4" min="0" class="w-full p-2 border rounded-md" placeholder="e.g., 4" aria-describedby="special-help">
+                    <p id="special-help" class="text-xs text-gray-500">Number of special characters in the password.</p>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="exclude-ambiguous" class="mr-2">
+                    <label for="exclude-ambiguous" class="text-sm text-gray-700">Exclude ambiguous characters (e.g., l, I, O, (), [])</label>
+                </div>
 
-            <button onclick="generatePassword()" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Generate Password</button>
-            <button id="dark-mode-toggle" class="w-full bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">Toggle Dark Mode</button>
+                <button onclick="generatePassword()" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Generate Password</button>
+            </div>
+        </div>
+        
+        <!-- Passphrase Tab -->
+        <div id="passphrase-tab" class="tab-content hidden">
+            <div class="space-y-4">
+                <div>
+                    <label for="word-count" class="block text-sm font-medium text-gray-700">Number of Words: <span id="word-count-value">4</span></label>
+                    <input type="range" id="word-count" min="2" max="12" value="4" class="w-full p-2" aria-describedby="word-count-help">
+                    <p id="word-count-help" class="text-xs text-gray-500">Number of words in the passphrase.</p>
+                </div>
+                <div>
+                    <label for="separator" class="block text-sm font-medium text-gray-700">Word Separator</label>
+                    <select id="separator" class="w-full p-2 border rounded-md">
+                        <option value="-">Hyphen (-)</option>
+                        <option value=".">Dot (.)</option>
+                        <option value="_">Underscore (_)</option>
+                        <option value=" ">Space ( )</option>
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="capitalize-words" class="mr-2" checked>
+                    <label for="capitalize-words" class="text-sm text-gray-700">Capitalize first letter of each word</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="include-number" class="mr-2" checked>
+                    <label for="include-number" class="text-sm text-gray-700">Add number at the end</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="include-special" class="mr-2">
+                    <label for="include-special" class="text-sm text-gray-700">Add special character at the end</label>
+                </div>
+                
+                <button onclick="generatePassphrase()" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Generate Passphrase</button>
+            </div>
+        </div>
+        
+        <!-- Username Tab -->
+        <div id="username-tab" class="tab-content hidden">
+            <div class="space-y-4">
+                <div>
+                    <label for="username-length" class="block text-sm font-medium text-gray-700">Username Length: <span id="username-length-value">12</span></label>
+                    <input type="range" id="username-length" min="4" max="25" value="12" class="w-full p-2" aria-describedby="username-length-help">
+                    <p id="username-length-help" class="text-xs text-gray-500">Target length of the generated username.</p>
+                </div>
+                <div>
+                    <label for="username-word-count" class="block text-sm font-medium text-gray-700">Word Count: <span id="username-word-count-value">2</span></label>
+                    <input type="range" id="username-word-count" min="1" max="3" value="2" class="w-full p-2" aria-describedby="username-word-count-help">
+                    <p id="username-word-count-help" class="text-xs text-gray-500">Number of words to combine.</p>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="include-number-username" class="mr-2" checked>
+                    <label for="include-number-username" class="text-sm text-gray-700">Include number at the end</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="all-lowercase" class="mr-2" checked>
+                    <label for="all-lowercase" class="text-sm text-gray-700">All lowercase</label>
+                </div>
+                
+                <button onclick="generateUsername()" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Generate Username</button>
+            </div>
         </div>
         
         <div id="error" class="text-red-500 text-sm mt-2 text-center hidden"></div>
+
+        <div class="flex justify-center mt-4">
+            <button id="dark-mode-toggle" class="bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700 w-auto px-4">Toggle Dark Mode</button>
+        </div>
         
         <div id="output" class="mt-6 hidden">
-            <h3 class="text-lg font-semibold">Generated Password:</h3>
-            <p class="text-center font-mono bg-gray-100 p-2 rounded-md break-all"><strong id="password"></strong></p>
-            <button onclick="copyPassword()" class="w-full bg-gray-600 text-white p-2 rounded-md mt-2 hover:bg-gray-700">Copy to Clipboard</button>
-            <h3 class="text-lg font-semibold mt-4">Estimated Time to Crack:</h3>
-            <p id="crack-time" class="text-center"></p>
-            <h3 class="text-lg font-semibold mt-4">Password Strength:</h3>
-            <div id="strength-bar" class="w-full bg-gray-200 rounded-md h-2.5">
-                <div id="strength-bar-fill" class="h-full rounded-md" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            <h3 class="text-lg font-semibold">Generated Result:</h3>
+            <div class="bg-gray-100 p-2 rounded-md my-2 overflow-x-auto">
+                <pre class="font-mono break-all whitespace-pre-wrap" id="result"></pre>
+            </div>
+            <button onclick="copyToClipboard()" class="w-full bg-gray-600 text-white p-2 rounded-md mt-2 hover:bg-gray-700">Copy to Clipboard</button>
+            
+            <div id="strength-section" class="mt-4">
+                <h3 class="text-lg font-semibold">Strength Analysis:</h3>
+                <p id="crack-time" class="text-center mt-2"></p>
+                <h3 class="text-lg font-semibold mt-4">Password Strength:</h3>
+                <div id="strength-bar" class="w-full bg-gray-200 rounded-md h-2.5 mt-2">
+                    <div id="strength-bar-fill" class="h-full rounded-md" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
             </div>
         </div>
     </div>
