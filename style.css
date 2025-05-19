@@ -19,7 +19,8 @@ body.bg-gray-800 .bg-white {
 }
 
 body.bg-gray-800 input[type="number"],
-body.bg-gray-800 input[type="range"] {
+body.bg-gray-800 input[type="range"],
+body.bg-gray-800 select {
     background-color: #4a5568;
     border-color: #6b7280;
     color: #f7fafc;
@@ -67,6 +68,16 @@ body.bg-gray-800 .text-gray-500 {
     padding: 0.5rem;
 }
 
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
 .mb-4 {
     margin-bottom: 1rem;
 }
@@ -83,6 +94,11 @@ body.bg-gray-800 .text-gray-500 {
     margin-top: 0.5rem;
 }
 
+.my-2 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
 .mr-2 {
     margin-right: 0.5rem;
 }
@@ -96,12 +112,12 @@ body.bg-gray-800 .text-gray-500 {
     display: flex;
 }
 
-.items-center {
-    align-items: center;
-}
-
 .justify-center {
     justify-content: center;
+}
+
+.items-center {
+    align-items: center;
 }
 
 .min-h-screen {
@@ -112,12 +128,18 @@ body.bg-gray-800 .text-gray-500 {
     width: 100%;
 }
 
+.w-auto {
+    width: auto;
+}
+
 .max-w-md {
     max-width: 28rem;
 }
 
 /* Input Fields */
-input[type="number"], input[type="range"] {
+input[type="number"], 
+input[type="range"],
+select {
     width: 100%;
     padding: 0.75rem;
     border: 2px solid #e2e8f0;
@@ -125,10 +147,58 @@ input[type="number"], input[type="range"] {
     transition: all 0.3s ease;
 }
 
-input[type="number"]:focus, input[type="range"]:focus {
+input[type="number"]:focus, 
+input[type="range"]:focus,
+select:focus {
     border-color: #3182ce;
     outline: none;
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+/* Tab Styles */
+.tab-button {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #718096;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: -2px;
+    font-weight: 500;
+}
+
+.tab-button:hover {
+    color: #4a5568;
+}
+
+.tab-button.active {
+    border-bottom: 2px solid #3182ce;
+    color: #3182ce;
+}
+
+body.bg-gray-800 .tab-button {
+    color: #a0aec0;
+}
+
+body.bg-gray-800 .tab-button:hover {
+    color: #e2e8f0;
+}
+
+body.bg-gray-800 .tab-button.active {
+    border-bottom: 2px solid #63b3ed;
+    color: #63b3ed;
+}
+
+.tab-content {
+    transition: opacity 0.3s ease;
+}
+
+.border-b {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+body.bg-gray-800 .border-b {
+    border-bottom: 1px solid #4a5568;
 }
 
 /* Button Styles */
@@ -188,7 +258,7 @@ button:focus {
     transition: width 0.3s ease, background-color 0.3s ease;
 }
 
-/* Password Output */
+/* Output area */
 #output {
     margin-top: 2rem;
     opacity: 1;
@@ -200,18 +270,30 @@ button:focus {
     opacity: 0;
 }
 
-#password {
+#result {
     font-family: 'Courier New', monospace;
     font-size: 1.125rem;
     word-break: break-all;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
     padding: 1rem;
     background-color: #f7fafc;
     border-radius: 0.375rem;
     margin: 0.5rem 0;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
-body.bg-gray-800 #password {
+body.bg-gray-800 #result {
     background-color: #4a5568;
+}
+
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
+.whitespace-pre-wrap {
+    white-space: pre-wrap;
 }
 
 #crack-time {
@@ -361,5 +443,10 @@ input[type="checkbox"]:checked::after {
     
     .text-2xl {
         font-size: 1.25rem;
+    }
+    
+    .tab-button {
+        padding: 0.5rem;
+        font-size: 0.875rem;
     }
 }
