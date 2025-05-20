@@ -22,7 +22,7 @@ let zxcvbnLoaded = false;
 function loadZxcvbn() {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = 'zxcvbn.js'; // Ensure correct path
+        script.src = 'src/zxcvbn.js'; // Ensure correct path
         script.onload = () => {
             zxcvbnLoaded = true;
             resolve();
