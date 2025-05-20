@@ -1,4 +1,3 @@
-// Note: Consider expanding this list (e.g., 2048 words like Diceware) for stronger passphrases
 const commonWords = [
     "ability", "able", "about", "above", "accept", "account", "across", "action",
     "activity", "actually", "add", "address", "administration", "admit", "adult",
@@ -22,7 +21,7 @@ let zxcvbnLoaded = false;
 function loadZxcvbn() {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = 'src/zxcvbn.js'; // Ensure correct path
+        script.src = 'src/zxcvbn.min.js'; // Fixed path to use .min.js version
         script.onload = () => {
             zxcvbnLoaded = true;
             resolve();
@@ -73,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (darkModeToggle) {
         darkModeToggle.addEventListener('click', toggleDarkMode);
     }
+    
+    // Apply dark mode if previously set
+    if (darkMode) {
+        document.body.classList.add('bg-gray-800');
+        document.body.classList.remove('bg-gray-100');
+    }
 });
 
 // Tab switching functionality
@@ -94,10 +99,6 @@ function switchTab(tabName) {
 
 // Dark mode toggle
 let darkMode = localStorage.getItem('darkMode') === 'true';
-if (darkMode) {
-    document.body.classList.add('bg-gray-800');
-    document.body.classList.remove('bg-gray-100');
-}
 
 function toggleDarkMode() {
     darkMode = !darkMode;
@@ -203,7 +204,6 @@ function generatePassword() {
     password = shuffleString(password);
     displayResult(password);
     calculateStrength(password);
-    estimateCrackTime(password, lowercase, uppercase, numbers, special);
 }
 
 // Passphrase generation
@@ -258,7 +258,6 @@ function generatePassphrase() {
     
     displayResult(result);
     calculateStrength(result);
-    estimatePassphraseCrackTime(result, wordCount);
 }
 
 // Username generation
@@ -391,85 +390,100 @@ function calculateStrength(password) {
     
     if (!strengthBar || !crackTime) return;
 
+    // Check if zxcvbn is loaded and available
     if (!zxcvbnLoaded || typeof zxcvbn !== 'function') {
-        strengthBar.style.width = '0%';
-        crackTime.innerText = 'Strength calculation unavailable';
+        console.warn('zxcvbn not loaded yet, attempting to calculate strength without it');
+        estimateCrackTime(password);
         return;
     }
     
-    const result = zxcvbn(password);
-    const percentage = (result.score + 1) * 20;
+    try {
+        const result = zxcvbn(password);
+        const score = result.score;
+        const percentage = (score + 1) * 20;
+        
+        // Update progress bar width and color
+        strengthBar.style.width = `${percentage}%`;
+        strengthBar.setAttribute('aria-valuenow', percentage);
+        
+        // Set color based on score
+        const colors = {
+            0: '#e53e3e', // Red - Very weak
+            1: '#ed8936', // Orange - Weak
+            2: '#f6ad55', // Yellow - Fair
+            3: '#38a169', // Green - Good
+            4: '#2b6cb0'  // Blue - Excellent
+        };
+        
+        strengthBar.style.backgroundColor = colors[score] || colors[0];
+        
+        // Display crack time
+        const crackTimeSeconds = result.crack_times_seconds.offline_fast_hashing_1e10_per_second;
+        crackTime.innerText = 
+            `Approx. crack time: ${result.crack_times_display.offline_fast_hashing_1e10_per_second}`;
+    } catch (error) {
+        console.error('Error using zxcvbn:', error);
+        // Fallback to simpler estimation if zxcvbn fails
+        estimateCrackTime(password);
+    }
+}
+
+// Simplified crack time estimation as a fallback
+function estimateCrackTime(password) {
+    const strengthBar = checkElement('strength-bar-fill');
+    const crackTime = checkElement('crack-time');
     
+    if (!strengthBar || !crackTime) return;
+    
+    // Basic character set analysis
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*()-_=+[\]{}|;:,.<>?]/.test(password);
+    
+    const charsetSize = 
+        (hasLower ? 26 : 0) +
+        (hasUpper ? 26 : 0) +
+        (hasNumber ? 10 : 0) +
+        (hasSpecial ? 33 : 0);
+    
+    const length = password.length;
+    
+    // Calculate combinations
+    const combinations = Math.pow(charsetSize || 1, length);
+    const seconds = combinations / 1e10; // 10 billion guesses per second
+    
+    // Determine score based on time
+    let score = 0;
+    if (seconds > 31536000) score = 4;
+    else if (seconds > 86400) score = 3;
+    else if (seconds > 3600) score = 2;
+    else if (seconds > 60) score = 1;
+    
+    // Update progress bar
+    const percentage = (score + 1) * 20;
     strengthBar.style.width = `${percentage}%`;
     strengthBar.setAttribute('aria-valuenow', percentage);
     
-    const crackTimeSeconds = result.crack_times_seconds.offline_fast_hashing_1e10_per_second;
+    // Set color based on score
+    const colors = {
+        0: '#e53e3e', // Red - Very weak
+        1: '#ed8936', // Orange - Weak
+        2: '#f6ad55', // Yellow - Fair
+        3: '#38a169', // Green - Good
+        4: '#2b6cb0'  // Blue - Excellent
+    };
     
-    if (crackTimeSeconds < 60) {
-        strengthBar.style.backgroundColor = '#e53e3e'; // Red
-    } else if (crackTimeSeconds < 86400) {
-        strengthBar.style.backgroundColor = '#ed8936'; // Orange
-    } else if (crackTimeSeconds < 604800) {
-        strengthBar.style.backgroundColor = '#f6ad55'; // Yellow
-    } else if (crackTimeSeconds < 31536000) {
-        strengthBar.style.backgroundColor = '#38a169'; // Green
-    } else {
-        strengthBar.style.backgroundColor = '#2b6cb0'; // Blue
-    }
+    strengthBar.style.backgroundColor = colors[score] || colors[0];
     
-    crackTime.innerText = 
-        `Approx. crack time: ${result.crack_times_display.offline_fast_hashing_1e10_per_second}`;
-}
-
-// Note: This is a simplified estimation; real-world crack times depend on attack specifics
-function estimateCrackTime(password, lowercase, uppercase, numbers, special) {
-    const crackTime = checkElement('crack-time');
-    if (!crackTime) return;
-
-    const charsetSize = 
-        (lowercase.length > 0 ? 26 : 0) +
-        (uppercase.length > 0 ? 26 : 0) +
-        (numbers.length > 0 ? 10 : 0) +
-        (special.length > 0 ? special.length : 0);
-    
-    const combinations = Math.pow(charsetSize, password.length);
-    const seconds = combinations / 1e10; // 10 billion guesses per second
-    
+    // Format time for display
     let displayTime;
     if (seconds < 60) {
         displayTime = `${Math.round(seconds)} seconds`;
-    } else if (seconds < 86400) {
+    } else if (seconds < 3600) {
         displayTime = `${Math.round(seconds / 60)} minutes`;
-    } else if (seconds < 31536000) {
-        displayTime = `${Math.round(seconds / 86400)} days`;
-    } else {
-        displayTime = `${Math.round(seconds / 31536000)} years`;
-    }
-    
-    crackTime.innerText = `Estimated crack time: ${displayTime}`;
-}
-// Note: Assumes small dictionary; larger dictionaries increase crack time
-function estimatePassphraseCrackTime(passphrase, wordCount) {
-    const crackTime = checkElement('crack-time');
-    if (!crackTime) return;
-
-    const dictionarySize = commonWords.length;
-    let combinations = Math.pow(dictionarySize, wordCount);
-    
-    if (passphrase.match(/\d+/)) {
-        combinations *= 1000; // Account for appended numbers
-    }
-    if (passphrase.match(/[!@#$%^&*()-_=+]/)) {
-        combinations *= 14; // Account for special characters
-    }
-    
-    const seconds = combinations / 1e10;
-    
-    let displayTime;
-    if (seconds < 60) {
-        displayTime = `${Math.round(seconds)} seconds`;
     } else if (seconds < 86400) {
-        displayTime = `${Math.round(seconds / 60)} minutes`;
+        displayTime = `${Math.round(seconds / 3600)} hours`;
     } else if (seconds < 31536000) {
         displayTime = `${Math.round(seconds / 86400)} days`;
     } else {
